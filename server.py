@@ -1,6 +1,5 @@
 import json
-import datetime
-from flask import Flask, render_template, request, redirect, flash, url_for
+from flask import Flask,render_template,request,redirect,flash,url_for
 import os
 
 
@@ -21,24 +20,6 @@ app.secret_key = 'something_special'
 
 competitions = loadCompetitions()
 clubs = loadClubs()
-
-
-def datetime_check(competition):
-    today = date_str_split(str(datetime.datetime.now()))
-    competition_date = date_str_split(competition['date'])
-
-    if int(today) < int(competition_date):
-        competition['status'] = 'open'
-    else:
-        competition['status'] = 'closed'
-    return competition
-
-
-def date_str_split(date):
-    days = date[:10].replace("-", "")
-    hours = date[11:16].replace(":", "")
-    date = days+hours
-    return str(date)
 
 
 def loadPlacesAlreadyBooked(competition, club):
@@ -81,20 +62,13 @@ def updatePlacesBookedOrCreate(competition, club, places):
 
 
 @app.route('/')
-def index(error_message="False"):
-    return render_template('index.html', error_message=error_message)
+def index():
+    return render_template('index.html')
 
 
-
-
-@app.route('/showSummary',methods=['POST'])
+@app.route('/showSummary', methods=['POST'])
 def showSummary():
-    try:
-        club = [club for club in clubs if club['email'] == request.form['email']][0]
-    except IndexError:
-        return index(error_message="Sorry, that email wasn't found.")
-    for i in competitions:
-        i = datetime_check(i)
+    club = [club for club in clubs if club['email'] == request.form['email']][0]
     return render_template('welcome.html', club=club, competitions=competitions)
 
 
@@ -109,26 +83,14 @@ def book(competition, club):
         return render_template('welcome.html', club=club, competitions=competitions)
 
 
-@app.route('/purchasePlaces', methods=['POST'])
+@app.route('/purchasePlaces',methods=['POST'])
 def purchasePlaces():
     competition = [c for c in competitions if c['name'] == request.form['competition']][0]
     club = [c for c in clubs if c['name'] == request.form['club']][0]
     placesAlreadyBooked = loadPlacesAlreadyBooked(competition, club)
     placesRequired = int(request.form['places'])
-    if placesRequired > int(club['points']):
-        error_message = "You don't have enough points to make this reservation"
-        return render_template('booking.html', club=club, competition=competition, error_message=error_message)
-    else:
-        competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
-        club['points'] = int(club['points'])-placesRequired
-        with open('database/clubs.json', "w") as c:
-            data = {'clubs': clubs}
-            json.dump(data, c)
-        club['points'] = int(club['points']) - placesRequired
-    with open(os.getcwd()+'/database/clubs.json', "w") as c:
-        data = {'clubs': clubs}
-        json.dump(data, c)
-        totalPlacesBooked = placesAlreadyBooked + placesRequired
+    competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
+    totalPlacesBooked = placesAlreadyBooked + placesRequired
     if totalPlacesBooked > 12:
         error_message = "You can't book more than 12 places for an event"
         return render_template('booking.html', club=club, competition=competition, placesAlreadyBooked=placesAlreadyBooked,
@@ -146,10 +108,6 @@ def purchasePlaces():
 
 
 # TODO: Add route for points display
-@app.route('/clubs')
-def clubsTable():
-    sorted_list = sorted(clubs, key=lambda item: item['name'])
-    return render_template('clubs.html', clubs=sorted_list)
 
 
 @app.route('/logout')

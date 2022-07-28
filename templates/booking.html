@@ -13,8 +13,8 @@
         <label for="places">How many places?</label><input type="number" name="places" id=""/>
         <button type="submit">Book</button>
     </form>
-    {% if error_message %}
-    <p>{{error_message}}</p>
+{% if error_message %}
+<p>{{error_message}}</p>
 {%endif%}
 </body>
 </html>
