@@ -19,8 +19,10 @@ def loadCompetitions():
 app = Flask(__name__)
 app.secret_key = 'something_special'
 
+
 competitions = loadCompetitions()
 clubs = loadClubs()
+
 
 
 def datetime_check(competition):
@@ -41,8 +43,9 @@ def date_str_split(date):
     return str(date)
 
 
+
 def loadPlacesAlreadyBooked(competition, club):
-    try :
+    try:
         if len(competition['clubsParticipating']) > 0:
             count = 0
             for i in competition['clubsParticipating']:
@@ -87,7 +90,7 @@ def index(error_message="False"):
 
 
 
-@app.route('/showSummary',methods=['POST'])
+@app.route('/showSummary', methods=['POST'])
 def showSummary():
     try:
         club = [club for club in clubs if club['email'] == request.form['email']][0]
@@ -118,27 +121,21 @@ def purchasePlaces():
     if placesRequired > int(club['points']):
         error_message = "You don't have enough points to make this reservation"
         return render_template('booking.html', club=club, competition=competition, error_message=error_message)
-    else:
-        competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
-        club['points'] = int(club['points'])-placesRequired
-        with open('database/clubs.json', "w") as c:
-            data = {'clubs': clubs}
-            json.dump(data, c)
-        club['points'] = int(club['points']) - placesRequired
-    with open(os.getcwd()+'/database/clubs.json', "w") as c:
-        data = {'clubs': clubs}
-        json.dump(data, c)
-        totalPlacesBooked = placesAlreadyBooked + placesRequired
+
+    totalPlacesBooked = placesAlreadyBooked + placesRequired
     if totalPlacesBooked > 12:
         error_message = "You can't book more than 12 places for an event"
         return render_template('booking.html', club=club, competition=competition, placesAlreadyBooked=placesAlreadyBooked,
                                error_message=error_message)
     else:
-        competition['numberOfPlaces'] = int(
-            competition['numberOfPlaces']) - placesRequired
+        competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
+        club['points'] = int(club['points'])-placesRequired
         competition = updatePlacesBookedOrCreate(competition, club,
                                                  totalPlacesBooked)
-        with open('database/competitions.json', "w") as cr:
+        with open(os.getcwd() + '/database/clubs.json', "w") as c:
+            data = {'clubs': clubs}
+            json.dump(data, c)
+        with open(os.getcwd() +'/database/competitions.json', "w") as cr:
             data = {'competitions': competitions}
             json.dump(data, cr)
         flash('Great-booking complete!')
