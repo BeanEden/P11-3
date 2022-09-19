@@ -29,52 +29,10 @@ def loadCompetitions():
          listOfCompetitions = json.load(comps)['competitions']
          return listOfCompetitions
 
-# clubs = {
-#   "clubs": [
-#     {
-#       "name": "Simply Lift",
-#       "email": "john@simplylift.co",
-#       "points": 30
-#     },
-#     {
-#       "name": "Iron Temple",
-#       "email": "admin@irontemple.com",
-#       "points": "4"
-#     },
-#     {
-#       "name": "She Lifts",
-#       "email": "kate@shelifts.co.uk",
-#       "points": "12"
-#     }
-#   ]
-# }
-#
-#
-# competitions = {
-#   "competitions": [
-#     {
-#       "name": "Spring Festival",
-#       "date": "2023-03-27 10:00:00",
-#       "numberOfPlaces": 50,
-#       "status": "open",
-#       "clubsParticipating": [
-#         {
-#           "club": "Simply Lift",
-#           "placesBooked": 1
-#         }
-#       ]
-#     },
-#     {
-#       "name": "Fall Classic",
-#       "date": "2020-10-22 13:30:00",
-#       "numberOfPlaces": "13",
-#       "status": "closed"
-#     }
-#   ]
-# }
 
 clubs = loadClubs()
 competitions = loadCompetitions()
+
 
 def reset_database(club, competition):
     club = [c for c in clubs if c['name'] == club][0]
@@ -84,9 +42,7 @@ def reset_database(club, competition):
         for i in competition['clubsParticipating']:
             if club['name'] == i['club']:
                 i['placesBooked'] = 1
-                print("placesbooked reset")
     except KeyError:
-        print("keyerror")
         competition['clubsParticipating'] = [
             {'club': club['name'], 'placesBooked': 1}]
 
